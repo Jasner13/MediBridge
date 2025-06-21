@@ -1,8 +1,37 @@
-import "./Home.css";
 import medibridge from '../assets/MediBridge_Home.png';
 import logo from '../assets/MediBridge_LogoClear.png'; // adjust the path as needed
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import facebookIcon from '../assets/icons/Facebook.png';
+import googleIcon from '../assets/icons/Google.png'
+import discordIcon from '../assets/icons/Discord.png';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
+
+  const [showLogin, setShowLogin] = useState(false);
+  const loginRef = useRef<HTMLDivElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const toggleLogin = () => {
+  setShowLogin(prev => !prev);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        loginRef.current &&
+        !loginRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest('.login-toggle')
+      ) {
+        setShowLogin(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="home-container">
       {/* Navbar */}
@@ -12,14 +41,56 @@ const Home = () => {
             <span className="logo-text">MediBridge</span>
         </div>
         <ul className="nav-links">
-            <li>Home</li>
-            <li>Services</li>
-            <li>About Us</li>
-            <li>Reviews</li>
-            <li>Login</li>
-            <li>Register</li>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/services">Services</Link></li>
+          <li><Link to="/about">About Us</Link></li>
+          <li><Link to="/reviews">Reviews</Link></li>
+          <li onClick={toggleLogin} className="login-toggle">Login</li>
+          <li><Link to="/register">Register</Link></li>
         </ul>
         </nav>
+      
+      {/* Login */}
+      <AnimatePresence>
+        {showLogin && (
+          <motion.div
+            className="login-popup"
+            ref={loginRef}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
+          >
+            <form className="login-form">
+              
+              <h3>Login</h3>
+              <input type="text" placeholder="Username" required />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                required
+              />
+
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  onChange={() => setShowPassword((prev) => !prev)}
+                />
+                Show password
+              </label>
+
+              <button type="submit">Submit</button>
+
+              <div className="social-icons">
+              <img src={facebookIcon} alt="Facebook Login" className="social-img" />
+              <img src={googleIcon} alt="Google Login" className="social-img" />
+              <img src={discordIcon} alt="Instagram Login" className="social-img" />
+              </div>
+
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
         <header
